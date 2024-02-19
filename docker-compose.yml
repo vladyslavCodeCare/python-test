@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      mp-network:
+        aliases:
+          - "db"
+  api:
+    build: .
+    volumes:
+      - ./app:/project/app
+      - ./alembic:/project/alembic
+    command: uvicorn app.main:app --host 0.0.0.0 --port 3001 --reload
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    networks:
+      mp-network:
+        aliases:
+          - "api"
+volumes:
+  db:
+networks:
+  mp-network:
+
+    # driver: local
